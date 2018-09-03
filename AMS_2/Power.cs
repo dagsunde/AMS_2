@@ -48,6 +48,7 @@ namespace AMS_2 {
             }
         }
 
+
         public DateTime PackageTime { get; set; }
         public string MeterID { get; set; }
         public string MeterType { get; set; }
