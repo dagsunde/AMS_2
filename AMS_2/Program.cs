@@ -8,9 +8,19 @@ using log4net;
 namespace AMS_2 {
     class Program {
 
+        // TODO:
+        // Hente Day-ahead & Nettleie...
+        // http://api.nve.no/web/EnergyMarket/GetHouseholdValues?startdate=20180904&vat=true&consumptiontax=true
+        // http://www.nordpoolspot.com/api/marketdata/page/10/NOK
+
+
         private static readonly ILog log = LogManager.GetLogger( typeof( Program ) );
 
         static void Main( string[] args ) {
+
+            DayAheadPrice prices = new DayAheadPrice();
+            prices.GetDayAhead();
+
 
             log4net.Config.XmlConfigurator.Configure();
             System.IO.Ports.SerialPort p = new System.IO.Ports.SerialPort();

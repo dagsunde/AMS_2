@@ -14,7 +14,7 @@ namespace AMS_2 {
 
         //private readonly ILog log = LogManager.GetLogger( typeof( OrderMonitor ) );
 
-        private static readonly log4net.ILog log = log4net.LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
+        private static readonly log4net.ILog log = LogManager.GetLogger( System.Reflection.MethodBase.GetCurrentMethod().DeclaringType );
 
         public const uint dataHeader = 8;
         public bool compensateFor09HeaderBug = false;
