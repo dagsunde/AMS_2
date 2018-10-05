@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using log4net;
 
 namespace AMS_2 {
@@ -16,7 +12,7 @@ namespace AMS_2 {
 
         private static readonly ILog log = LogManager.GetLogger( typeof( Program ) );
 
-        static void Main( string[] args ) {
+        static void Main(string[] args) {
 
             DayAheadPrice prices = new DayAheadPrice();
             prices.GetDayAhead();
@@ -25,40 +21,61 @@ namespace AMS_2 {
             log4net.Config.XmlConfigurator.Configure();
             System.IO.Ports.SerialPort p = new System.IO.Ports.SerialPort();
 
-            HanReader han = new HanReader();
-            han.setup( p, "COM3", 2400 );
+            var persist = true;
+            var comPort = "COM3";
 
-            while ( true ) {
+            if (args.Length < 2) {
+                Console.WriteLine("Usage: ");
+                Console.WriteLine("\t AMS_2 [COMX] [PERSIST | NOPERSIST]");
+                Console.WriteLine();
+                Console.WriteLine("Using Persist without the DB installed *will* fail!");
+            } else {
 
-                // Read one byte from the port, and see if we got a full package
-                if ( han.read() ) {
+                if (!args[1].Trim().ToUpper().Equals("PERSIST")) {
+                    persist = false;
+                }
 
-                    // Get the list identifier
-                    int listSize = han.getListSize();
+                comPort = args[0].Trim().ToUpper();
 
-                    log.Debug( "" );
-                    log.Debug( "List size: " );
-                    log.Debug( listSize );
-                    log.Debug( ": " );
+                HanReader han = new HanReader();
+                han.setup(p, comPort, 2400);
 
-                    // Only care for the ACtive Power Imported, which is found in the first list
-                    if ( listSize == (int)Kamstrup.KamstrupLists.List1 ) {
+                while (true) {
 
-                        Console.ForegroundColor = ConsoleColor.White;
-                        Power pwr = new Power( han );
-                        pwr.Save();
-                        Console.WriteLine( pwr.ToString() );
+                    // Read one byte from the port, and see if we got a full package
+                    if (han.read()) {
+
+                        // Get the list identifier
+                        int listSize = han.getListSize();
+
+                        log.Debug("");
+                        log.Debug("List size: ");
+                        log.Debug(listSize);
+                        log.Debug(": ");
+
+                        // Only care for the ACtive Power Imported, which is found in the first list
+                        if (listSize == (int)Kamstrup.KamstrupLists.List1) {
+
+                            Console.ForegroundColor = ConsoleColor.White;
+                            Power pwr = new Power(han);
+                            if (persist) {
+                                pwr.Save();
+                            }
+                            Console.WriteLine(pwr.ToString());
 
 
-                    } else if ( listSize == (int)Kamstrup.KamstrupLists.List2 ) {
+                        } else if (listSize == (int)Kamstrup.KamstrupLists.List2) {
 
-                        Console.ForegroundColor = ConsoleColor.Yellow;
-                        Energy energy = new Energy( han );
-                        energy.Save();
-                        Console.WriteLine( energy.ToString() );
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            Energy energy = new Energy(han);
+                            if (persist) {
+                                energy.Save();
+                            }
+                            Console.WriteLine(energy.ToString());
+                        }
+
+
                     }
-
-
                 }
             }
         }
